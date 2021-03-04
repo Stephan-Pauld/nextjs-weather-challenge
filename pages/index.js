@@ -12,7 +12,7 @@ export default function Home() {
     wind: {},
   })
 
-  // When the page is rendered we get the IP adress of the user and pass it to ipLocation()
+  // we do a call to our OWN api that grabs a bunch of data for weather and our IP
   useEffect(() => {
     let weatherToGrab = 'metricWeather';
 
@@ -35,6 +35,7 @@ export default function Home() {
 
   }, [uom])
 
+  // just setting if we want imperial or metric
   const changeUom = (measurement) => {
     setUom(measurement)
   }
