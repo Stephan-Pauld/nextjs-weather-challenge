@@ -1,65 +1,65 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import React, { useEffect, useState } from 'react';
+import Head from 'next/head';
+import axios from 'axios';
 
 export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+  
+  // using useState because of this single page I would probably use redux if I needed this data elsewhere.
+  const [uom, setUom] = useState('metric');
+  const [weather, setWeather] = useState({
+    city: '',
+    temps: {},
+    wind: {},
+  })
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+  // When the page is rendered we get the IP adress of the user and pass it to ipLocation()
+  useEffect(() => {
+    let weatherToGrab = 'metricWeather';
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+    if(uom === 'imperial') {
+      weatherToGrab = 'imperialWeather'
+    }
+    axios.get(`/api/${weatherToGrab}`)
+    .then(res =>{
+      console.log(res);
+      setWeather(prev => ({
+        ...prev,
+        city: res.data.data.name,
+        temps: res.data.data.main,
+        wind: res.data.data.wind,
+      }))
+    })
+    .catch(err => {
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+    })
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+  }, [uom])
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+  const changeUom = (measurement) => {
+    setUom(measurement)
+  }
 
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+  if (weather.city) {
+    return (
+      <div>
+        <Head>
+          <title>
+            Weather Locator
+          </title>
+        </Head>
+        <button onClick={() => changeUom("metric")}>Celcius</button>
+        <button onClick={() => changeUom("imperial")}>Fahrenheit</button>
+        <h1>Weather In {weather.city}</h1>
+        <h2>The tempature outside is {weather.temps.temp}{uom === "metric" ? 'C' : 'F'}</h2>
+        <h2>Feels Like {weather.temps.feels_like}{uom === "metric" ? 'C' : 'F'}</h2>
+        <h2>Todays High: {weather.temps.temp_max}{uom === "metric" ? 'C' : 'F'}</h2>
+        <h2>Todays Low: {weather.temps.temp_min}{uom === "metric" ? 'C' : 'F'}</h2>
+      </div>
+    )
+  } else {
+    return (
+      <h1>Gathering Weather Data....</h1>
+    )
+  }
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
 }
